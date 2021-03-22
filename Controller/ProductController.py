@@ -11,4 +11,6 @@
 #
 # prod_collection.insert_one(prod_post)
 # cate_collection.insert_one(cate_post)
+from Dao.CatalogDAO import CatalogDAO
+
 
