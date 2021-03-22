@@ -15,19 +15,19 @@ class Product:
         :param description:
         :param category:
         """
-        self.id = uuid.uuid4()
-        self.name = name
-        self.brand = brand
-        self.price = price
-        self.description = description
-        self.category = category
+        self._id = uuid.uuid4()
+        self._name = name
+        self._brand = brand
+        self._price = price
+        self._description = description
+        self._category = category
 
     @property
     def id(self):
         """
         :return id:
         """
-        return self.id
+        return self._id
 
     @id.setter
     def id(self, value):
@@ -38,7 +38,7 @@ class Product:
         """
         :return name:
         """
-        return self.name
+        return self._name
 
     @name.setter
     def name(self, value):
@@ -46,14 +46,14 @@ class Product:
         :param value:
         :return:
         """
-        self.name = value
+        self._name = value
 
     @property
     def brand(self):
         """
         :return brand:
         """
-        return self.brand
+        return self._brand
 
     @brand.setter
     def brand(self, value):
@@ -61,14 +61,14 @@ class Product:
         :param value:
         :return:
         """
-        self.brand = value
+        self._brand = value
 
     @property
     def price(self):
         """
         :return price:
         """
-        return self.price
+        return self._price
 
     @price.setter
     def price(self, value):
@@ -76,14 +76,14 @@ class Product:
         :param value:
         :return:
         """
-        self.price = value
+        self._price = value
 
     @property
     def description(self):
         """
         :return description:
         """
-        return self.description
+        return self._description
 
     @description.setter
     def description(self, value):
@@ -91,14 +91,14 @@ class Product:
         :param value:
         :return:
         """
-        self.description = value
+        self._description = value
 
     @property
     def category(self):
         """
         :return category:
         """
-        return self.category
+        return self._category
 
     @category.setter
     def category(self, value):
@@ -106,4 +106,4 @@ class Product:
         :param value:
         :return:
         """
-        self.category = value
+        self._category = value
