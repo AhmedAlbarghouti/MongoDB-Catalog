@@ -8,8 +8,6 @@ cate_collection = db['Category']
 
 class CatalogDAO:
 
-
-
  def getAllProducts():
    return prod_collection.find()
 
