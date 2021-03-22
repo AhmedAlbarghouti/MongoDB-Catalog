@@ -1,8 +1,10 @@
 import uuid
+
 """
 By Ahmed Albarghouti
 22/3/2021
 """
+
 
 class Product:
     def __init__(self, name, brand, price, description, category):
@@ -26,6 +28,10 @@ class Product:
         :return id:
         """
         return self.id
+
+    @id.setter
+    def id(self, value):
+        self._id = value
 
     @property
     def name(self):
