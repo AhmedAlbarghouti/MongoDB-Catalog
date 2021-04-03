@@ -241,7 +241,6 @@ def AddCategory():
         return redirect(url_for('getAllProducts'))
     return render_template('add_category.html', title='Add Category', form=form)
 
-
 # ====================================
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
