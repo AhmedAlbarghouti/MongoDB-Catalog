@@ -37,17 +37,18 @@ def getAddView():
 @app.route("/", methods=["GET"])
 @app.route("/products", methods=["GET"])
 def getAllProducts():
+    try:
         data = list(db.Product.find({}))
         for product in data:
             product["_id"] = str(product["_id"])
         return render_template('index.html', products=data, title='Home')
-    # except Exception as ex:
-    #     print(ex)
-    #     return Response(
-    #         response=json.dumps({"message": "cannot get products"}),
-    #         status=400,
-    #         mimetype='application/json'
-    #     )
+    except Exception as ex:
+        print(ex)
+        return Response(
+            response=json.dumps({"message": "cannot get products"}),
+            status=400,
+            mimetype='application/json'
+        )
       
       
 #====================================
