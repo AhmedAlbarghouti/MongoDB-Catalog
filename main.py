@@ -41,6 +41,7 @@ def getAllProducts():
         data = list(db.Product.find({}))
         for product in data:
             product["_id"] = str(product["_id"])
+            print(data)
         return render_template('index.html', products=data, title='Home')
     except Exception as ex:
         print(ex)
@@ -49,6 +50,22 @@ def getAllProducts():
             status=400,
             mimetype='application/json'
         )
+
+    # ====================================
+    # GET SINGLE PRODUCT (PRODUCT CONTROLLER) & GET SINGLE VIEW (VIEW CONTROLLER)
+@app.route('/products/<item_id>', methods=["GET"])
+def getSingleProduct(item_id):
+    try:
+        data = db.Product.find_one({'_id': ObjectId(item_id)})
+        print(data)
+        return render_template('product_page.html', product=data, title='Home')
+    except Exception as ex:
+        print(ex)
+        return Response(
+           response=json.dumps({"message": "cannot get products"}),
+           status=400,
+           mimetype='application/json'
+       )
       
       
 #====================================
@@ -70,6 +87,8 @@ def addProduct():
         print(ex)
 
 
+
+
 #====================================
 # EDIT ONE PRODUCT (PRODUCT CONTROLLER)
 @app.route("/products/<id>", methods=["PATCH"])
@@ -79,7 +98,7 @@ def editProduct(id):
             {"_id": ObjectId(id)},
             {"$set":
                 {
-                    "name": request.form["product_name"],
+                    "name": request.form ["product_name"],
                     "brand": request.form["brand"],
                     "price": request.form["price_cad"],
                     "description": request.form["product_description"],
@@ -113,6 +132,7 @@ def editProduct(id):
 @app.route("/products/<id>", methods=["DELETE"])
 def deleteProduct(id):
     try:
+        dbResponse = db.Product.find()
         dbResponse = db.Product.delete_one({"_id": ObjectId(id)})
         if dbResponse.deleted_count == 1:
             return Response(

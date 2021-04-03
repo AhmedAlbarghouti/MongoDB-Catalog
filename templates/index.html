@@ -4,10 +4,12 @@
     {% for item in products %}
         <div class="card">
           <img src="" alt="" style="width:100%">
+
           <h1>{{ item.name}}</h1>
           <p class="price">${{ item.price }}</p>
           <p>{{ item.description}}</p>
-          <p><button type="button" onclick="window.location.href='{{ url_for( 'addProduct', item_id=item.ID ) }}';">View</button></p>
+            <p>{{ item._id}}</p>
+            <p><button type="button" onClick="window.location.href='{{ url_for( 'getSingleProduct', item_id=item._id ) }}';">View</button></p>
         </div>
     {% endfor %}
     </div>
