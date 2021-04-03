@@ -73,16 +73,19 @@ def getSingleProduct(item_id):
 @app.route("/products", methods=["POST"])
 def addProduct():
     try:
+        print(request.form["product_name"])
         product = {
             "name":request.form["product_name"],
             "brand":request.form["brand"],
             "price":request.form["price_cad"],
-            "description":request.form["product_description"],
+            "description":request.form["description"],
             "category":request.form["category"],
         }
         dbResponse = db.Product.insert_one(product)
         print(dbResponse.inserted_id)
-        return redirect('/')
+        name = product.get('name')
+        flash(f' {name} has been added to the catalog', 'success')
+        return redirect(url_for('getAllProducts'))
     except Exception as ex:
         print(ex)
 

@@ -8,7 +8,6 @@
           <h1>{{ item.name}}</h1>
           <p class="price">${{ item.price }}</p>
           <p>{{ item.description}}</p>
-            <p>{{ item._id}}</p>
             <p><button type="button" onClick="window.location.href='{{ url_for( 'getSingleProduct', item_id=item._id ) }}';">View</button></p>
         </div>
     {% endfor %}
