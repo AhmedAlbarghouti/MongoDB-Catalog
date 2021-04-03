@@ -1,7 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, DecimalField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, DecimalField, TextAreaField, FloatField, \
+    SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
+
+categories = ['grocery', 'sporting goods', 'electronics', 'home']
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
@@ -23,13 +26,14 @@ class LoginForm(FlaskForm):
 
 
 class AddForm(FlaskForm):
-    product_name = StringField('Product Name',
-                               validators=[DataRequired(), Length(min=2, max=20)])
+    name = StringField('Product Name',
+                       validators=[DataRequired(), Length(min=2, max=20)])
     brand = StringField('Brand',
                         validators=[DataRequired(), Length(min=2, max=20)])
-    price_cad = DecimalField('Price', validators=[DataRequired()])
+    price = FloatField('Price', validators=[DataRequired()])
     description = TextAreaField('Description',
                                 validators=[DataRequired(), Length(min=5, max=100)])
-    category = StringField('Category',
-                           validators=[DataRequired(), Length(min=2, max=20)])
+
+    category = SelectField('Category',
+                           choices=categories)
     submit = SubmitField('Submit')

@@ -7,7 +7,7 @@
           <h4>By: {{ product.brand }}</h4>
           <p class="price">${{ product.price }}</p>
           <p>{{ product.description}}</p>
-          <p><button type="button" class="btn btn-primary" onclick="window.location.href='';">Update</button></p>
-          <p><button type="button" class="btn btn-danger" onclick="window.location.href='';">DELETE</button></p>
-        </div>
+            <p><button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for( 'getEditView', item_id=product._id ) }}';">Update</button></p>
+        <p><button type="button" class="btn btn-danger" onclick="window.location.href='{{ url_for( 'deleteProduct', id=product._id ) }}';">Delete</button></p>
+</form>
 {% endblock content %}
