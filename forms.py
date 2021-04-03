@@ -3,8 +3,8 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Decim
     SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
+categories = []
 
-categories = ['grocery', 'sporting goods', 'electronics', 'home']
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
@@ -36,4 +36,10 @@ class AddForm(FlaskForm):
 
     category = SelectField('Category',
                            choices=categories)
+    submit = SubmitField('Submit')
+
+
+class AddCategoryForm(FlaskForm):
+    category = StringField('Category Name',
+                           validators=[DataRequired(), Length(min=2, max=20)])
     submit = SubmitField('Submit')
