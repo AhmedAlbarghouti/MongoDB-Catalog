@@ -1,13 +1,15 @@
 
-from flask import Flask, Response, request, render_template, redirect
+from flask import Flask, Response, request, render_template, redirect, url_for, flash
 from pymongo import MongoClient
 import json
 from bson import ObjectId
 
 from Model.Product import Product
+from forms import AddForm
 
 app = Flask(__name__)
 
+app.config['SECRET_KEY'] = '9be304c55f10cb66f6e0e148348d1012'
 
 try: 
     cluster = MongoClient(
@@ -24,25 +26,28 @@ except:
 # GET ADD VIEW (VIEW CONTROLLER)
 @app.route("/add", methods=["GET"])
 def getAddView():
-    return render_template("add.html")
+    form = AddForm()
+    if form.validate_on_submit():
+        flash(f' {form.product_name.data} has been added to the catalog', 'success')
+        return redirect(url_for('index.html'))
+    return render_template("add.html", form=form, title='Add')
 
 #====================================
 # GET ALL PRODUCTS (PRODUCT CONTROLLER) & GET ALL VIEW (VIEW CONTROLLER)
 @app.route("/", methods=["GET"])
 @app.route("/products", methods=["GET"])
 def getAllProducts():
-    try:
         data = list(db.Product.find({}))
         for product in data:
             product["_id"] = str(product["_id"])
-        return render_template("index.html", products=data)
-    except Exception as ex:
-        print(ex)
-        return Response(
-            response=json.dumps({"message": "cannot get products"}),
-            status=400,
-            mimetype='application/json'
-        )
+        return render_template('index.html', products=data, title='Home')
+    # except Exception as ex:
+    #     print(ex)
+    #     return Response(
+    #         response=json.dumps({"message": "cannot get products"}),
+    #         status=400,
+    #         mimetype='application/json'
+    #     )
       
       
 #====================================
@@ -51,7 +56,7 @@ def getAllProducts():
 def addProduct():
     try:
         product = {
-            "name":request.form["product_name"], 
+            "name":request.form["product_name"],
             "brand":request.form["brand"],
             "price":request.form["price_cad"],
             "description":request.form["product_description"],

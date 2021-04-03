@@ -1,26 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/static/css/style.css" />
-    <title>Document</title>
-  </head>
-
-  <body>
-    {% if products %}
-    <ul>
-      {% for item in products %}
-      <li>
-        <span style="margin: 0 20px">{{ item.name }}</span>
-        <span style="margin: 0 20px">{{ item.brand }}</span>
-        <span style="margin: 0 20px">{{ item.price_cad }}</span>
-        <span style="margin: 0 20px">{{ item.description }}</span>
-        <span style="margin: 0 20px">{{ item.category }}</span>
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </body>
-</html>
+{%  extends "layout.html" %}
+{% block content %}
+    <div class="cards">
+    {% for item in products %}
+        <div class="card">
+          <img src="" alt="" style="width:100%">
+          <h1>{{ item.product_name}}</h1>
+          <p class="price">${{ item.price }}</p>
+          <p>{{ item.description}}</p>
+          <p><button type="button" onclick="window.location.href='{{ url_for( 'addProduct', item_id=item.ID ) }}';">View</button></p>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock content %}
