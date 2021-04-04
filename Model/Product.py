@@ -16,7 +16,7 @@ class Product:
         :param category:
         :param subCategory:
         """
-        self._id = uuid.uuid4()
+        self._id = uuid.uuid4().__str__()
         self._name = name
         self._brand = brand
         self._price = price

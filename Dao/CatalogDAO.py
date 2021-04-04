@@ -18,39 +18,26 @@ class CatalogDAO:
 
         return categories
 
-    def getAllSubCategories(self):
-        subCategories = []
-        for subCat in cate_collection.find({}, {'_id': False, "Mini_Categories.Mini_Cat_Name": True}):
-            subCategories.append(subCat)
-        return subCategories
-
     def getAllSubCategoriesFromCategory(self, category):
-        subCategories = []
-        # '_id': False, "Mini_Categories.Mini_Cat_Name": True,
-        for cat in cate_collection.find(
-                                        {'Category_Name': 'Food'}):
-            for subCat in cate_collection.find({}, {'_id': False,  "Mini_Categories.Mini_Cat_Name": True}):
-             subCategories.append(cat)
+        return cate_collection.find({'Category_Name': category}, {"Mini_Categories.Mini_Cat_Name"})
 
-        for row in subCategories:
-            print(row)
+    def getAllProductsFromSubCategory(self, subcategory):
+        return cate_collection.find({"Mini_Categories.Mini_Cat_Name": subcategory})
+            # for a in cate_collection.find({}, {"Category_Name":0, "Mini_Id": 0, "_id":0}):
 
-    # def getAllProductsFromSubCategory(self, subcategory):
-    #    products=[]
-    #    for subCat in cate_collection
 
-    # def addProduct(self, product_name, brand, price_cad, product_description, category):
-    #     prod = Product(product_name, brand, price_cad, product_description, category)
-    #     # new_product=({prod})
-    #     return prod_collection.insert_one({"_id":prod.id.__str__(), "name":prod.name, "brand":prod.brand, "price": prod.price, "description:":prod.description,
-    #                                        "category":prod.category})
-    #
-    # def deleteProduct(product_id):
-    #     return prod_collection.find_one_and_delete({"_id": product_id})
-    #
-    # def deleteAll(self):
-    #     return prod_collection.delete_many({})
+    def addProduct(self, product_name, brand, price_cad, product_description, sub_cat, category):
+       prod = Product(product_name, brand, price_cad, product_description, sub_cat, category)
+       # new_product=({prod})
+       return cate_collection.insert_one({"_id":prod.id, "name":prod.name, "brand":prod.brand, "price": prod.price, "description:":prod.description, "sub":prod.subCategory,
+                                            "category":prod.category})
+
+    def deleteProduct(product_id):
+        return cate_collection.find_one_and_delete({"_id": product_id})
+
+    def deleteAll(self):
+        return cate_collection.delete_many({})
 
 
 c = CatalogDAO()
-c.getAllSubCategoriesFromCategory("Food")
+c.addProduct( "Samsung Galaxy A71", "Sansung", 500, "Android Phone", "Phones", "Electronics")
