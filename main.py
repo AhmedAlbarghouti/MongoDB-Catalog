@@ -4,7 +4,7 @@ import json
 from bson import ObjectId
 
 from Model.Product import Product
-from forms import AddForm, AddCategoryForm
+from forms import AddForm, AddCategoryForm, DeleteCategoryForm
 
 app = Flask(__name__)
 
@@ -234,13 +234,23 @@ def deleteAllProducts():
 @app.route("/categories/add", methods=['GET', 'POST'])
 def AddCategory():
     form = AddCategoryForm()
-
+    form.category.choices = categories
     if form.validate_on_submit():
-        categories.append(form.category.data)
+        categories.remove(form.category.data)
         flash(f' {form.category.data} has been updated', 'success')
         return redirect(url_for('getAllProducts'))
     return render_template('add_category.html', title='Add Category', form=form)
 
+
+@app.route("/categories/delete", methods=['GET', 'POST'])
+def DeleteCategory():
+    form = DeleteCategoryForm()
+    form.category.choices = categories
+    if form.validate_on_submit():
+        categories.append(form.category.data)
+        flash(f' {form.category.data} has been updated', 'success')
+        return redirect(url_for('getAllProducts'))
+    return render_template('delete_category.html', title='Add Category', form=form)
 # ====================================
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
