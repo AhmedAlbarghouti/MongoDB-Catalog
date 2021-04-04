@@ -18,13 +18,26 @@ class CatalogDAO:
 
         return categories
 
+    def getAllSubCategories(self):
+        subCategories = []
+        for subCat in cate_collection.find({}, {'_id': False, "Mini_Categories.Mini_Cat_Name": True}):
+            subCategories.append(subCat)
+        return subCategories
+
     def getAllSubCategoriesFromCategory(self, category):
         subCategories = []
-        for subCat in cate_collection.find({}, {category+".Mini_Categories.Mini_Cat_Name"}):
-            print(subCat)
-    #
-    # def getAllProductsFromSubCategory(self):
-    #     return prod_collection.find()
+        # '_id': False, "Mini_Categories.Mini_Cat_Name": True,
+        for cat in cate_collection.find(
+                                        {'Category_Name': 'Food'}):
+            for subCat in cate_collection.find({}, {'_id': False,  "Mini_Categories.Mini_Cat_Name": True}):
+             subCategories.append(cat)
+
+        for row in subCategories:
+            print(row)
+
+    # def getAllProductsFromSubCategory(self, subcategory):
+    #    products=[]
+    #    for subCat in cate_collection
 
     # def addProduct(self, product_name, brand, price_cad, product_description, category):
     #     prod = Product(product_name, brand, price_cad, product_description, category)
