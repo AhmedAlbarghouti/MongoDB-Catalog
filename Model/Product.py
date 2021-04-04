@@ -7,20 +7,22 @@ By Ahmed Albarghouti
 
 
 class Product:
-    def __init__(self, name, brand, price, description, category):
+    def __init__(self, name, brand, price, description, category, subCategory):
         """
         :param name:
         :param brand:
         :param price:
         :param description:
         :param category:
+        :param subCategory:
         """
-        self._id = uuid.uuid4()
+        self._id = uuid.uuid4().__str__()
         self._name = name
         self._brand = brand
         self._price = price
         self._description = description
         self._category = category
+        self._subCategory = subCategory
 
     @property
     def id(self):
@@ -107,3 +109,18 @@ class Product:
         :return:
         """
         self._category = value
+
+    @property
+    def subCategory(self):
+        """
+        :return subCategory:
+        """
+        return self._subCategory
+
+    @subCategory.setter
+    def subCategory(self, value):
+        """
+        :param value:
+        :return:
+        """
+        self._subCategory = value

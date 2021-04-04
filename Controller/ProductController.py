@@ -3,6 +3,7 @@ from pymongo import MongoClient
 import json
 from bson import ObjectId
 
+from Dao.CatalogDAO import CatalogDAO
 from Model.Product import Product
 from forms import AddForm, AddCategoryForm
 
@@ -10,22 +11,20 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '9be304c55f10cb66f6e0e148348d1012'
 
-try:
-    cluster = MongoClient(
-        "mongodb+srv://CST8276:Algonquin2021@cluster0.n9qal.mongodb.net/catalog?retryWrites=true&w=majority")
-    db = cluster['catalog']
-    prod_collection = db['Product']
-    cate_collection = db['Category']
 
-except:
-    print("ERROR - Cannot connect to db")
-
-categories = ['Home', 'Electronics', 'Sporting Goods']
+c = CatalogDAO()
+categories = ['Home', 'Electronics', 'Sporting Goods', 'Books', 'Health & Beauty']
+homeSub = ['Furniture', 'Kitchen', 'Patio & Garden', 'Storage & Organization']
+elecSub = ['TV & Home Theatre', 'Headphones & Speakers', 'Camera, Photo & Video', 'Cell Phones']
+sportSub = ['Exercise & Fitness', 'Team Sports', 'Sports Apparel', 'Golf']
+bookSub = ['Arts & Photography', 'Biographies & Memoirs', 'Education & Reference', 'Law']
+healthSub = ['Beauty', 'Luxury Beauty', 'Health & Personal Care', 'Household Supplies']
 
 
 @app.context_processor
 def inject_categories():
-    return dict(categories=categories)
+    return dict(categories=categories, homeSub=homeSub, elecSub=elecSub, sportSub=sportSub, bookSub=bookSub,
+                healthSub=healthSub)
 
 
 # ====================================
@@ -34,6 +33,12 @@ def inject_categories():
 def getAddView():
     form = AddForm()
     form.category.choices = categories
+    form.homeSub.choices = homeSub
+    form.elecSub.choices = elecSub
+    form.sportSub.choices = sportSub
+    form.bookSub.choices = bookSub
+    form.healthSub.choices = healthSub
+
     if form.validate_on_submit():
         flash(f' {form.name.data} has been added to the catalog', 'success')
         return redirect(url_for('index.html'))
@@ -46,7 +51,7 @@ def getAddView():
 @app.route("/products", methods=["GET"])
 def getAllProducts():
     try:
-        data = list(db.Product.find({}))
+        data = list(c.getAllProducts())
         for product in data:
             product["_id"] = str(product["_id"])
             print(data)
@@ -66,7 +71,7 @@ def getAllProducts():
 @app.route('/products/<item_id>', methods=["GET"])
 def getSingleProduct(item_id):
     try:
-        data = db.Product.find_one({'_id': ObjectId(item_id)})
+        data = c.getProductWithId(ObjectId(item_id))
         print(data)
         return render_template('product_page.html', product=data, title='Home')
     except Exception as ex:
@@ -81,11 +86,9 @@ def getSingleProduct(item_id):
 @app.route('/categories/<category>', methods=["GET"])
 def getCategoryView(category):
     try:
-        data = list(db.Product.find({'category': category}))
+        data = list(c.getAllCategories())
         print(data)
-        for product in data:
-            product["_id"] = str(product["_id"])
-            print(data)
+
         return render_template('index.html', products=data, title=category)
     except Exception as ex:
         print(ex)
@@ -101,7 +104,7 @@ def getCategoryView(category):
 @app.route("/edit/<item_id>", methods=["GET"])
 def getEditView(item_id):
     try:
-        data = db.Product.find_one({'_id': ObjectId(item_id)})
+        data = c.getProductWithId(ObjectId(item_id))
         form = AddForm(data=data)
         form.category.choices = categories
         if form.validate_on_submit():
@@ -128,8 +131,9 @@ def addProduct():
             "price": request.form["price"],
             "description": request.form["description"],
             "category": request.form["category"],
+            #Add Subcategory
         }
-        dbResponse = db.Product.insert_one(product)
+        dbResponse = c.addProduct(product)
         print(dbResponse.inserted_id)
         name = product.get('name')
         flash(f' {name} has been added to the catalog', 'success')
@@ -144,18 +148,8 @@ def addProduct():
 def editProduct(id):
     print('here')
     try:
-        dbResponse = db.Product.update_one(
-            {"_id": ObjectId(id)},
-            {"$set":
-                {
-                    "name": request.form["name"],
-                    "brand": request.form["brand"],
-                    "price": request.form["price"],
-                    "description": request.form["description"],
-                    "category": request.form["category"]
-                }
-            }
-        )
+        dbResponse = c.editProduct(id)
+
         if dbResponse.modified_count == 1:
             name = request.form["name"]
             flash(f' {name} has been added to the catalog', 'success')
@@ -185,15 +179,15 @@ def editProduct(id):
 @app.route("/products/delete/<id>", methods=["GET"])
 def deleteProduct(id):
     try:
-        dbResponse = db.Product.delete_one({"_id": ObjectId(id)})
+        dbResponse = c.deleteProduct(id)
         if dbResponse.deleted_count == 1:
             flash(f'Item has been removed from the catalog', 'success')
             return redirect(url_for('getAllProducts'))
-            return Response(
-                response=json.dumps({"message": "product was deleted successfully"}),
-                status=200,
-                mimetype='application/json'
-            )
+            # return Response(
+            #     response=json.dumps({"message": "product was deleted successfully"}),
+            #     status=200,
+            #     mimetype='application/json'
+            # )
         return Response(
             response=json.dumps({
                 "message": "product not found",
@@ -216,7 +210,7 @@ def deleteProduct(id):
 @app.route("/products", methods=["DELETE"])
 def deleteAllProducts():
     try:
-        db.Product.delete_many({})
+        c.deleteAll()
         return Response(
             response=json.dumps({"message": "products were deleted successfully!"}),
             status=200,
@@ -240,6 +234,7 @@ def AddCategory():
         flash(f' {form.category.data} has been updated', 'success')
         return redirect(url_for('getAllProducts'))
     return render_template('add_category.html', title='Add Category', form=form)
+
 
 # ====================================
 if __name__ == "__main__":
