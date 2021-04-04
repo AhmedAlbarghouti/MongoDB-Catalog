@@ -3,6 +3,7 @@ from pymongo import MongoClient
 import json
 from bson import ObjectId
 
+from Dao.CatalogDAO import CatalogDAO
 from Model.Product import Product
 from forms import AddForm, AddCategoryForm
 
@@ -19,8 +20,10 @@ try:
 
 except:
     print("ERROR - Cannot connect to db")
-
-categories = ['Home', 'Electronics', 'Sporting Goods']
+c = CatalogDAO()
+categories = []
+for category in list(c.getAllCategories()):
+    categories.append(category["Category_Name"])
 
 
 @app.context_processor
@@ -237,6 +240,7 @@ def AddCategory():
 
     if form.validate_on_submit():
         categories.append(form.category.data)
+        c.addCategory(form.category.data)
         flash(f' {form.category.data} has been updated', 'success')
         return redirect(url_for('getAllProducts'))
     return render_template('add_category.html', title='Add Category', form=form)
