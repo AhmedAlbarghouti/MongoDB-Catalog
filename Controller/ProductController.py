@@ -3,8 +3,9 @@ from pymongo import MongoClient
 import json
 from bson import ObjectId
 
+from Dao.CatalogDAO import CatalogDAO
 from Model.Product import Product
-from form import AddForm, AddCategoryForm
+from View.forms import AddForm, AddCategoryForm
 
 app = Flask(__name__)
 
@@ -21,6 +22,7 @@ except:
     print("ERROR - Cannot connect to db")
 
 categories = ['Home', 'Electronics', 'Sporting Goods']
+c = CatalogDAO()
 
 
 @app.context_processor
@@ -46,7 +48,7 @@ def getAddView():
 @app.route("/products", methods=["GET"])
 def getAllProducts():
     try:
-        data = list(db.Product.find({}))
+        data = list(c.getAllProducts())
         for product in data:
             product["_id"] = str(product["_id"])
             print(data)
@@ -240,6 +242,7 @@ def AddCategory():
         flash(f' {form.category.data} has been updated', 'success')
         return redirect(url_for('getAllProducts'))
     return render_template('add_category.html', title='Add Category', form=form)
+
 
 # ====================================
 if __name__ == "__main__":

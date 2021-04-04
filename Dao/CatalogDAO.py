@@ -24,6 +24,9 @@ class CatalogDAO:
         """Returns a dict object containing all the products in a specific subcategory"""
         return prod_collection.find({"Sub-Category": subcategory})
 
+    def getAllProducts(self):
+        return prod_collection.find({})
+
     def addProduct(self, product_name, brand, price_cad, product_description, category, sub_cat):
         """Inserts a new product into the Product collection"""
         prod = Product(product_name, brand, price_cad, product_description, category, sub_cat)
@@ -42,7 +45,7 @@ class CatalogDAO:
 
 
 # c = CatalogDAO()
-# # c.addProduct("Cherry Cake", "Kinder", 50, "Cake", "Food", "Pastry")
+# c.addProduct("Iphone 7", "Apple", 500, "Smart Phone", "Electronics", "Mobiles")
 # # c.getAllSubCategoriesFromCategory("Electronics")
 # # c.getAllProductsFromSubCategory("Mobiles")
 # c.deleteAll()

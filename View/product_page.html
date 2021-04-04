@@ -1,0 +1,13 @@
+{%  extends "layout.html" %}
+{% block content %}
+              <h2>{{ product.category }}</h2>
+        <form class="product_card">
+          <img src="" alt="" style="width:100%">
+          <h1>{{ product.product_name}}</h1>
+          <h4>By: {{ product.brand }}</h4>
+          <p class="price">${{ product.price }}</p>
+          <p>{{ product.description}}</p>
+            <p><button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for( 'getEditView', item_id=product._id ) }}';">Update</button></p>
+        <p><button type="button" class="btn btn-danger" onclick="window.location.href='{{ url_for( 'deleteProduct', id=product._id ) }}';">Delete</button></p>
+</form>
+{% endblock content %}
