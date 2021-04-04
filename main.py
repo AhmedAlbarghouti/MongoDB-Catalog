@@ -11,15 +11,6 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '9be304c55f10cb66f6e0e148348d1012'
 
-try:
-    cluster = MongoClient(
-        "mongodb+srv://CST8276:Algonquin2021@cluster0.n9qal.mongodb.net/catalog?retryWrites=true&w=majority")
-    db = cluster['catalog']
-    prod_collection = db['Product']
-    cate_collection = db['Category']
-
-except:
-    print("ERROR - Cannot connect to db")
 c = CatalogDAO()
 categories = []
 for category in list(c.getAllCategories()):
@@ -49,7 +40,7 @@ def getAddView():
 @app.route("/products", methods=["GET"])
 def getAllProducts():
     try:
-        data = list(db.Product.find({}))
+        data = list(c.getAllProducts())
         for product in data:
             product["_id"] = str(product["_id"])
             print(data)
@@ -69,7 +60,7 @@ def getAllProducts():
 @app.route('/products/<item_id>', methods=["GET"])
 def getSingleProduct(item_id):
     try:
-        data = db.Product.find_one({'_id': ObjectId(item_id)})
+        data = c.getProduct(item_id)
         print(data)
         return render_template('product_page.html', product=data, title='Home')
     except Exception as ex:
@@ -84,7 +75,7 @@ def getSingleProduct(item_id):
 @app.route('/categories/<category>', methods=["GET"])
 def getCategoryView(category):
     try:
-        data = list(db.Product.find({'category': category}))
+        data = list(c.getCategoryProducts(category))
         print(data)
         for product in data:
             product["_id"] = str(product["_id"])
@@ -104,7 +95,7 @@ def getCategoryView(category):
 @app.route("/edit/<item_id>", methods=["GET"])
 def getEditView(item_id):
     try:
-        data = db.Product.find_one({'_id': ObjectId(item_id)})
+        data = c.getProduct(item_id)
         form = AddForm(data=data)
         form.category.choices = categories
         if form.validate_on_submit():
@@ -132,7 +123,7 @@ def addProduct():
             "description": request.form["description"],
             "category": request.form["category"],
         }
-        dbResponse = db.Product.insert_one(product)
+        dbResponse = c.addProduct(product)
         print(dbResponse.inserted_id)
         name = product.get('name')
         flash(f' {name} has been added to the catalog', 'success')
@@ -147,18 +138,9 @@ def addProduct():
 def editProduct(id):
     print('here')
     try:
-        dbResponse = db.Product.update_one(
-            {"_id": ObjectId(id)},
-            {"$set":
-                {
-                    "name": request.form["name"],
-                    "brand": request.form["brand"],
-                    "price": request.form["price"],
-                    "description": request.form["description"],
-                    "category": request.form["category"]
-                }
-            }
-        )
+        dbResponse = c.editProduct(id, request.form["name"], request.form["brand"], request.form["price"],
+                                   request.form["description"], request.form["category"])
+
         if dbResponse.modified_count == 1:
             name = request.form["name"]
             flash(f' {name} has been added to the catalog', 'success')
@@ -187,31 +169,9 @@ def editProduct(id):
 # DELETE ONE PRODUCT (PRODUCT CONTROLLER)
 @app.route("/products/delete/<id>", methods=["GET"])
 def deleteProduct(id):
-    try:
-        dbResponse = db.Product.delete_one({"_id": ObjectId(id)})
-        if dbResponse.deleted_count == 1:
-            flash(f'Item has been removed from the catalog', 'success')
-            return redirect(url_for('getAllProducts'))
-            return Response(
-                response=json.dumps({"message": "product was deleted successfully"}),
-                status=200,
-                mimetype='application/json'
-            )
-        return Response(
-            response=json.dumps({
-                "message": "product not found",
-                # "id": f"{id}"
-            }),
-            status=200,
-            mimetype='application/json'
-        )
-    except Exception as ex:
-        print(ex)
-        return Response(
-            response=json.dumps({"message": "Error: Cannot delete product"}),
-            status=400,
-            mimetype='application/json'
-        )
+    dbResponse = c.deleteProduct(id)
+    flash(f'Item has been removed from the catalog', 'success')
+    return redirect(url_for('getAllProducts'))
 
 
 # #====================================
@@ -219,7 +179,7 @@ def deleteProduct(id):
 @app.route("/products", methods=["DELETE"])
 def deleteAllProducts():
     try:
-        db.Product.delete_many({})
+        c.deleteAll()
         return Response(
             response=json.dumps({"message": "products were deleted successfully!"}),
             status=200,
@@ -241,7 +201,6 @@ def AddCategory():
     if form.validate_on_submit():
         categories.append(form.category.data)
         c.addCategory(form.category.data)
-        categories.remove(form.category.data)
         flash(f' {form.category.data} has been updated', 'success')
         return redirect(url_for('getAllProducts'))
     return render_template('add_category.html', title='Add Category', form=form)
@@ -252,10 +211,13 @@ def DeleteCategory():
     form = DeleteCategoryForm()
     form.category.choices = categories
     if form.validate_on_submit():
-        categories.append(form.category.data)
+        categories.remove(form.category.data)
+        c.deleteCategory(form.category.data)
         flash(f' {form.category.data} has been updated', 'success')
         return redirect(url_for('getAllProducts'))
     return render_template('delete_category.html', title='Add Category', form=form)
+
+
 # ====================================
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
