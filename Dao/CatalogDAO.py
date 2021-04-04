@@ -6,38 +6,43 @@ cluster = MongoClient(
     "mongodb+srv://CST8276:Algonquin2021@cluster0.n9qal.mongodb.net/catalog?retryWrites=true&w=majority")
 db = cluster['catalog']
 
-cate_collection = db['Category']
+prod_collection = db['Product']
 
 
 class CatalogDAO:
 
-    def getAllCategories(self):
-        categories = []
-        for cat in cate_collection.find({}, {"Category_Name"}):
-            categories.append(cat)
 
-        return categories
+    def getAllCategories(self):
+        """Returns a dict object containing all the categories in every product"""
+        return prod_collection.find({}, {"Category"})
 
     def getAllSubCategoriesFromCategory(self, category):
-        return cate_collection.find({'Category_Name': category}, {"Mini_Categories.Mini_Cat_Name"})
+        """Returns a dict object containing all the sub-category in a specific category"""
+        return prod_collection.find({"Category": category}, {"Sub-Category"})
 
     def getAllProductsFromSubCategory(self, subcategory):
-        return cate_collection.find({"Mini_Categories.Mini_Cat_Name": subcategory})
-            # for a in cate_collection.find({}, {"Category_Name":0, "Mini_Id": 0, "_id":0}):
+        """Returns a dict object containing all the products in a specific subcategory"""
+        return prod_collection.find({"Sub-Category": subcategory})
 
+    def addProduct(self, product_name, brand, price_cad, product_description, category, sub_cat):
+        """Inserts a new product into the Product collection"""
+        prod = Product(product_name, brand, price_cad, product_description, category, sub_cat)
 
-    def addProduct(self, product_name, brand, price_cad, product_description, sub_cat, category):
-       prod = Product(product_name, brand, price_cad, product_description, sub_cat, category)
-       # new_product=({prod})
-       return cate_collection.insert_one({"_id":prod.id, "name":prod.name, "brand":prod.brand, "price": prod.price, "description:":prod.description, "sub":prod.subCategory,
-                                            "category":prod.category})
+        return prod_collection.insert_one({"_id": prod.id, "Name": prod.name, "Brand": prod.brand, "Price": prod.price,
+                                           "Description:": prod.description, "Sub-Category": prod.subCategory,
+                                           "Category": prod.category})
 
-    def deleteProduct(product_id):
-        return cate_collection.find_one_and_delete({"_id": product_id})
+    def deleteProduct(self, product_id):
+        """Deletes a product with a specific ID"""
+        return prod_collection.find_one_and_delete({"_id": product_id})
 
     def deleteAll(self):
-        return cate_collection.delete_many({})
+        """Deletes all of the documents/products"""
+        return prod_collection.delete_many({})
 
 
-c = CatalogDAO()
-c.addProduct( "Samsung Galaxy A71", "Sansung", 500, "Android Phone", "Phones", "Electronics")
+# c = CatalogDAO()
+# # c.addProduct("Cherry Cake", "Kinder", 50, "Cake", "Food", "Pastry")
+# # c.getAllSubCategoriesFromCategory("Electronics")
+# # c.getAllProductsFromSubCategory("Mobiles")
+# c.deleteAll()
